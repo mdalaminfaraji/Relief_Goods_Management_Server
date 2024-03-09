@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const bcrypt = require("bcrypt");
-const { MongoClient } = require("mongodb");
+const { MongoClient, ObjectId } = require("mongodb");
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
 
@@ -27,6 +27,7 @@ async function run() {
 
     const db = client.db("assignment");
     const collection = db.collection("users");
+    const ReliefGoods = db.collection("ReliefGoods");
 
     // User Registration
     app.post("/api/v1/register", async (req, res) => {
@@ -42,7 +43,7 @@ async function run() {
       }
 
       // Hash the password
-      const hashedPassword = await bcrypt.hash(password, 10);
+      const hashedPassword = await bcrypt.hash(password, 8);
 
       // Insert user into the database
       await collection.insertOne({ name, email, password: hashedPassword });
@@ -83,6 +84,129 @@ async function run() {
 
     // ==============================================================
     // WRITE YOUR CODE HERE
+    app.post("/api/v1/create-supply", async (req, res) => {
+      const body = req.body;
+
+      const result = await ReliefGoods.insertOne(body);
+      res.json({
+        success: true,
+        message: "Your Supply Create successfully done",
+        data: result,
+      });
+    });
+
+    app.get("/api/v1/getAllSupply", async (req, res) => {
+      const result = await ReliefGoods.find().toArray();
+      res.json({
+        success: true,
+        message: "Data retrieve successfully done",
+        data: result,
+      });
+    });
+
+    app.get("/api/v1/getSingleSupply/:id", async (req, res) => {
+      const supplyId = req.params.id;
+
+      try {
+        if (!ObjectId.isValid(supplyId)) {
+          return res.status(400).json({
+            success: false,
+            message: "Invalid supply ID format",
+            data: null,
+          });
+        }
+
+        const result = await ReliefGoods.findOne({
+          _id: new ObjectId(supplyId),
+        });
+
+        if (!result) {
+          return res.status(404).json({
+            success: false,
+            message: "Supply not found",
+            data: null,
+          });
+        }
+
+        res.json({
+          success: true,
+          message: "Get single Supply successfully",
+          data: result,
+        });
+      } catch (error) {
+        console.error("Error getting single supply:", error);
+        res.status(500).json({
+          success: false,
+          message: "Internal Server Error",
+          data: null,
+        });
+      }
+    });
+
+    app.put("/api/v1/edit-supply/:id", async (req, res) => {
+      const supplyId = req.params.id;
+      const updatedData = req.body;
+
+      try {
+        const result = await ReliefGoods.findOneAndUpdate(
+          { _id: new ObjectId(supplyId) },
+          { $set: updatedData },
+          { new: true }
+        );
+
+        if (!result) {
+          return res.status(404).json({
+            success: false,
+            message: "Supply not found",
+            data: null,
+          });
+        }
+
+        res.json({
+          success: true,
+          message: "Supply updated successfully",
+          data: result,
+        });
+      } catch (error) {
+        console.error("Error updating supply:", error);
+        res.status(500).json({
+          success: false,
+          message: "Internal Server Error",
+          data: null,
+        });
+      }
+    });
+    app.delete("/api/v1/delete-supply/:id", async (req, res) => {
+      const supplyId = req.params.id;
+
+      try {
+        const result = await ReliefGoods.findOneAndDelete({
+          _id: new ObjectId(supplyId),
+        });
+
+        if (!result) {
+          return res.status(404).json({
+            success: false,
+            message: "Supply not found",
+            data: null,
+          });
+        }
+
+        res.json({
+          success: true,
+          message: "Supply deleted successfully",
+          data: result,
+        });
+      } catch (error) {
+        console.error("Error deleting supply:", error);
+        res.status(500).json({
+          success: false,
+          message: "Internal Server Error",
+          data: null,
+        });
+      }
+    });
+
     // ==============================================================
 
     // Start the server
@@ -103,3 +227,14 @@ app.get("/", (req, res) => {
   };
   res.json(serverStatus);
 });
+
+// https://i.ibb.co/LPgSXT7/rice.png
+// https://i.ibb.co/stTF3Md/first.png
+// https://i.ibb.co/dm2p8Dz/cloths.png
+// https://i.ibb.co/LYC0V4w/waterdiaster.png
+// https://i.ibb.co/DGYhZvN/sylhet.png
+// https://i.ibb.co/NT5G6XK/disaster-1.png
+// https://i.ibb.co/Dr7w5L1/relief.png
+// https://i.ibb.co/7jsBWN4/ataMoida.png
+// https://i.ibb.co/tQzPnWd/food.png
+// https://i.ibb.co/mzVpx4r/naturaldiastare.png
