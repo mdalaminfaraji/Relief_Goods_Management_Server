@@ -28,6 +28,7 @@ async function run() {
     const db = client.db("assignment");
     const collection = db.collection("users");
     const ReliefGoods = db.collection("ReliefGoods");
+    const ReliefGoodsTestimonial = db.collection("ReliefGoodsTestimonial");
 
     // User Registration
     app.post("/api/v1/register", async (req, res) => {
@@ -205,6 +206,27 @@ async function run() {
           data: null,
         });
       }
+    });
+
+    // Testimonial
+    app.post("/api/v1/create-testimonial", async (req, res) => {
+      const body = req.body;
+
+      const result = await ReliefGoodsTestimonial.insertOne(body);
+      res.json({
+        success: true,
+        message: "Your Testimonial Created successfully",
+        data: result,
+      });
+    });
+
+    app.get("/api/v1/getAllTestimonial", async (req, res) => {
+      const result = await ReliefGoodsTestimonial.find().toArray();
+      res.json({
+        success: true,
+        message: "Data retrieve successfully done",
+        data: result,
+      });
     });
 
     // ==============================================================
