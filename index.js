@@ -29,6 +29,7 @@ async function run() {
     const collection = db.collection("users");
     const ReliefGoods = db.collection("ReliefGoods");
     const ReliefGoodsTestimonial = db.collection("ReliefGoodsTestimonial");
+    const ReliefDonation = db.collection("ReliefDonation");
     const ReliefGoodsVolunteer = db.collection("ReliefGoodsVolunteer");
     const communityPosts = db.collection("communityPosts");
 
@@ -224,6 +225,28 @@ async function run() {
 
     app.get("/api/v1/getAllTestimonial", async (req, res) => {
       const result = await ReliefGoodsTestimonial.find().toArray();
+      res.json({
+        success: true,
+        message: "Data retrieve successfully done",
+        data: result,
+      });
+    });
+
+    // Relief Donation api
+
+    app.post("/api/v1/create-donation", async (req, res) => {
+      const body = req.body;
+
+      const result = await ReliefDonation.insertOne(body);
+      res.json({
+        success: true,
+        message: "Your Donation Created successfully",
+        data: result,
+      });
+    });
+
+    app.get("/api/v1/getAllDonation", async (req, res) => {
+      const result = await ReliefDonation.find().toArray();
       res.json({
         success: true,
         message: "Data retrieve successfully done",
