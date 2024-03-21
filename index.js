@@ -246,7 +246,16 @@ async function run() {
     });
 
     app.get("/api/v1/getAllDonation", async (req, res) => {
-      const result = await ReliefDonation.find().toArray();
+      const result = await ReliefDonation.aggregate([
+        {
+          $addFields: {
+            amountAsNumber: { $toInt: "$amount" },
+          },
+        },
+        {
+          $sort: { amountAsNumber: -1 },
+        },
+      ]).toArray();
       res.json({
         success: true,
         message: "Data retrieve successfully done",
